@@ -66,7 +66,10 @@ df_month_stack = selection_grouped.query(string_query[:-2])
 
 select = alt.selection_multi(fields=['Year'], bind='legend')
 
-base_chart = alt.Chart(df_month_stack).mark_bar().encode(
+base_chart = alt.Chart(
+    df_month_stack
+    ).mark_bar(
+    ).encode(
         x=alt.X(
             'Month_num:N',
             axis=alt.Axis(
@@ -79,9 +82,6 @@ base_chart = alt.Chart(df_month_stack).mark_bar().encode(
         tooltip=['Distance', 'Month', 'Year'],
         color='Year:N',
         order=alt.Order('Year', sort='ascending')
-        # column='Year:O'
-        # column = alt.Column('Month:N', spacing = 1)
-        # opacity=alt.condition(selection, alt.value(1), alt.value(0.2))
     ).properties(
         width=900,
         height=600
