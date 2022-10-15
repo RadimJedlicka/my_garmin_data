@@ -15,9 +15,6 @@ st.set_page_config(
 # ###################################### #####################################
 df = pd.read_csv('cycling_activities.csv')
 
-# show all the columns of df
-pd.set_option("display.max_columns", None)
-
 # converting columns into useful formats
 df['Date'] = pd.to_datetime(df['Date']).dt.date
 df['Time'] = pd.to_timedelta(df['Time'])
@@ -29,7 +26,6 @@ df['Month'] = pd.to_datetime(df['Date']).dt.month
 
 list_of_years = df['Year'].drop_duplicates().values.tolist()
 years_string = [str(year) for year in list_of_years]
-years_string
 
 
 df['Month'] = pd.to_datetime(df['Date']).dt.month_name()
@@ -46,18 +42,63 @@ selection_grouped = selection.groupby(
 selection_grouped.reset_index(inplace=True)
 # selection_grouped
 
-year2022 = selection_grouped['Year'] == 2022
-year2021 = selection_grouped['Year'] == 2021
-year2020 = selection_grouped['Year'] == 2020
-year2019 = selection_grouped['Year'] == 2019
+# ######################## ###################################################
+# STREAMLIT PAGE STRUCTURE 
+# ######################## ###################################################
+st.title('Distances')
 
-df_super = selection_grouped[
-    year2022 | 
-    year2021 | 
-    year2020 | 
-    year2019
-]
-df_super
+select_year = st.multiselect(
+    label='Select year',
+    options=years_string,
+    default='2022')
+
+string_query = ''
+for year in select_year:
+    base = 'Year == '
+    if not string_query:
+        string_query = base + year + ' | '
+    if string_query:
+        string_query += base + year + ' | '
+
+
+df_month_stack = selection_grouped.query(string_query[:-2])
+# df_month_stack
+
+select = alt.selection_multi(fields=['Year'], bind='legend')
+
+base_chart = alt.Chart(df_month_stack).mark_bar().encode(
+        x=alt.X(
+            'Month_num:N',
+            axis=alt.Axis(
+                title='Months by their order (1: January - 12: December)')),
+        y=alt.Y(
+            'sum(Distance):Q',
+            axis=alt.Axis(
+                title='Cummulated sum of kilometers ridden each month')),
+        
+        tooltip=['Distance', 'Month', 'Year'],
+        color='Year:N',
+        order=alt.Order('Year', sort='ascending')
+        # column='Year:O'
+        # column = alt.Column('Month:N', spacing = 1)
+        # opacity=alt.condition(selection, alt.value(1), alt.value(0.2))
+    ).properties(
+        width=900,
+        height=600
+    ).add_selection(
+        select
+    ).interactive()
+# alt.layer(base_chart).facet(
+#     column='Year'
+# )
+st.altair_chart(base_chart, use_container_width=False)
+
+
+
+
+
+
+
 
 df_final = selection.groupby(
     [
@@ -71,37 +112,10 @@ df_final.sort_values(['Month_num', 'Year'], inplace=True)
 
 df_final.to_csv('df_final.csv')
 df_final2 = pd.read_csv('df_final.csv')
-df_final2
+# df_final2
 
-country = st.sidebar.multiselect(
-    label='Select year',
-    options=years_string,
-    default=['2022'])
-
-# brush = alt.selection(type='single', encodings=['x'])
-selection = alt.selection_multi(fields=country, bind='legend')
-
-base_chart = alt.Chart(df_final2).mark_bar().encode(
-        x=alt.X('Month_num:N'),
-        y=alt.Y('sum(Distance):Q', scale=alt.Scale(zero=False)),
-        color='Year:N',
-        # column='Year:O'
-        # column = alt.Column('Month:N', spacing = 1)
-        # opacity=alt.condition(selection, alt.value(1), alt.value(0.2))
-    # ).add_selection(
-    #     selection
-    ).properties(
-    width=900,
-    height=600
-    )
-# alt.layer(base_chart).facet(
-#     column='Year'
-# )
-st.altair_chart(base_chart, use_container_width=False)
-
-
-base_chart = alt.Chart(df_super).mark_bar().encode(
-        x=alt.X('Month:N', sort = 'y'),
+base_chart = alt.Chart(df_month_stack).mark_bar().encode(
+        x=alt.X('Month_num:N', sort = 'y'),
         y=alt.Y('sum(Distance):Q', scale=alt.Scale(zero=False)),
         color='Year:N',
         column='Year:O'
@@ -114,3 +128,5 @@ base_chart = alt.Chart(df_super).mark_bar().encode(
 #     column='Year'
 # )
 st.altair_chart(base_chart, use_container_width=False)
+
+

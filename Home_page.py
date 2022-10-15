@@ -59,7 +59,7 @@ col3.metric(
     str(days) + ' days in the saddle'
 )
 col4.metric(
-    'Longest ride', 
+    'Total calories burned', 
     str(total_calories) + ' kcal',
     'like ' + str(burger_count) + ' burgers eaten',
     delta_color="inverse"

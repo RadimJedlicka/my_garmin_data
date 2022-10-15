@@ -25,24 +25,13 @@ df['Moving_Time'] = pd.to_timedelta(df['Moving_Time'])
 df['Elapsed_Time'] = pd.to_timedelta(df['Elapsed_Time'])
 df['Year'] = pd.to_datetime(df['Date']).dt.year
 
-
-# ######################## ###################################################
-# STREAMLIT PAGE STRUCTURE 
-# ######################## ###################################################
-st.title('My garmin data')
-
 # longest rides
-st.header('TOP 10 of my longest rides')
-
 longest_rides = df[['Date', 'Title', 'Distance']
                   ].sort_values('Distance', ascending=False
                   ).reset_index().head(10).round(2)
 longest_rides.index += 1
-longest_rides
 
 # Kilometers ridden per year
-st.header('Kilometers per year')
-
 df['Year'] = pd.to_datetime(df['Date']).dt.year
 km_per_year = df[
     ['Year', 'Distance']
@@ -50,7 +39,6 @@ km_per_year = df[
     ).agg({'Year': 'mean', 'Distance': 'sum'}
     )
 km_per_year.iloc[::-1].drop('Year', axis=1)
-
 kmpr = alt.Chart(km_per_year).mark_bar(color='darkblue').encode(
     x='Year:O',
     y='Distance:Q',
@@ -59,14 +47,30 @@ kmpr = alt.Chart(km_per_year).mark_bar(color='darkblue').encode(
     grid=False
 ).properties(
     width=600,
-    height=300
+    height=450
 ).interactive()
 
-st.altair_chart(kmpr, use_container_width=False)
+# Bike usage
+bike_usage = df[
+    ['Bike', 'Distance']].assign(amount_of_rides=1
+    ).groupby(df['Bike']
+    ).agg({'amount_of_rides': 'sum', 'Distance': 'sum'})
+
+bike_usage.to_csv('bike_usage.csv')
+usage = pd.read_csv('bike_usage.csv')
+
+usage = alt.Chart(usage).mark_bar(color='darkgreen').encode(
+    alt.X('Bike:N', sort='y'),
+    alt.Y('Distance:Q'),
+    tooltip=['Distance', 'Bike:O']
+).configure_axis(
+    grid=False
+).properties(
+    width=600,
+    height=500
+).interactive()
 
 # Activity types
-st.header('Types of activities')
-
 activity_type = df[
     ['Activity_Type', 'Distance']].assign(amount_of_rides=1
     ).groupby(df['Activity_Type']
@@ -76,38 +80,37 @@ activity_type.to_csv('activity_types.csv')
 activities = pd.read_csv('activity_types.csv')
 
 fig = alt.Chart(activities).mark_bar(color='darkred').encode(
-    x='Activity_Type:N',
-    y='Distance:Q',
+    alt.X('Activity_Type:N', axis=alt.Axis(title='Type of activities'), sort='-y'),
+    alt.Y('Distance:Q'),
     tooltip=['Distance', 'Activity_Type']
 ).configure_axis(
     grid=False
 ).properties(
     width=600,
-    height=600
+    height=520
 ).interactive()
 
-st.altair_chart(fig, use_container_width=False)
+# ######################## ###################################################
+# STREAMLIT PAGE STRUCTURE 
+# ######################## ###################################################
+st.title('My garmin data')
 
-# Bike usage
-st.header('How much I use each bike')
+col1, col2 = st.columns(2)
 
-bike_usage = df[
-    ['Bike', 'Distance']].assign(amount_of_rides=1
-    ).groupby(df['Bike']
-    ).agg({'amount_of_rides': 'sum', 'Distance': 'sum'})
 
-bike_usage.to_csv('bike_usage.csv')
-usage = pd.read_csv('bike_usage.csv')
+col1.header('TOP 10 of my longest rides')
+col1.dataframe(longest_rides)
 
-fig = alt.Chart(usage).mark_bar(color='darkgreen').encode(
-    alt.X('Bike:N'),
-    y='Distance:Q',
-    tooltip=['Distance', 'Bike:O']
-).configure_axis(
-    grid=False
-).properties(
-    width=600,
-    height=600
-).interactive()
+col2.header('Kilometers per year')
+col2.altair_chart(kmpr, use_container_width=False)
 
-st.altair_chart(fig, use_container_width=False)
+
+col1, col2 = st.columns(2)
+
+col1.header('How much I use each bike')
+col1.altair_chart(usage, use_container_width=False)
+
+col2.header('Types of activities')
+col2.altair_chart(fig, use_container_width=False)
+
+
