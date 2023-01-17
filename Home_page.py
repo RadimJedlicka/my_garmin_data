@@ -67,9 +67,9 @@ col4.metric(
 
 
 # Goal for the current year
-df2022 = df[df['Year'] == 2022]
+df2023 = df[df['Year'] == 2023]
 
-total_km_year = int(df2022['Distance'].sum())
+total_km_year = int(df2023['Distance'].sum())
 
 goal = 4000
 current = total_km_year
@@ -99,7 +99,7 @@ col1, col2 = st.columns([4, 2])
 
 col1.image('title-photo.jpg', width=300, use_column_width=True)
 col2.markdown('''<h2 style='text-align: center; color: #3662c2'>
-                Road to 4K in 2022</h2>
+                Road to 4K in 2023</h2>
                 ''', unsafe_allow_html=True
                 )
 col2.pyplot(fig)
