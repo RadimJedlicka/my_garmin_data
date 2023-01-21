@@ -26,7 +26,7 @@ df['Elapsed_Time'] = pd.to_timedelta(df['Elapsed_Time'])
 df['Year'] = pd.to_datetime(df['Date']).dt.year
 
 # longest rides
-longest_rides = df[['Date', 'Title', 'Distance']
+longest_rides = df[['Title', 'Distance']
                   ].sort_values('Distance', ascending=False
                   ).reset_index().head(10).round(2)
 longest_rides.index += 1
@@ -46,7 +46,7 @@ kmpr = alt.Chart(km_per_year).mark_bar(color='darkblue').encode(
 ).configure_axis(
     grid=False
 ).properties(
-    width=600,
+    width=500,
     height=450
 ).interactive()
 
@@ -66,7 +66,7 @@ usage = alt.Chart(usage).mark_bar(color='darkgreen').encode(
 ).configure_axis(
     grid=False
 ).properties(
-    width=600,
+    width=500,
     height=500
 ).interactive()
 
@@ -86,8 +86,8 @@ fig = alt.Chart(activities).mark_bar(color='darkred').encode(
 ).configure_axis(
     grid=False
 ).properties(
-    width=600,
-    height=520
+    width=500,
+    height=550
 ).interactive()
 
 # ######################## ###################################################

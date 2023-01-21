@@ -50,7 +50,7 @@ st.title('Distances')
 select_year = st.multiselect(
     label='Select year',
     options=years_string,
-    default='2022')
+    default='2023')
 
 string_query = ''
 for year in select_year:
