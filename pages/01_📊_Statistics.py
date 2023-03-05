@@ -13,7 +13,7 @@ st.set_page_config(
 # ###################################### #####################################
 # DATA PROCESSING, DATAFRAMES, VARIABLES 
 # ###################################### #####################################
-df = pd.read_csv('cycling_activities.csv')
+df = pd.read_csv('cleaning_data/Activities_golden.csv')
 
 # show all the columns of df
 pd.set_option("display.max_columns", None)

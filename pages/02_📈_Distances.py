@@ -13,7 +13,7 @@ st.set_page_config(
 # ###################################### #####################################
 # DATA PROCESSING, DATAFRAMES, VARIABLES 
 # ###################################### #####################################
-df = pd.read_csv('cycling_activities.csv')
+df = pd.read_csv('cleaning_data/Activities_golden.csv')
 
 # converting columns into useful formats
 df['Date'] = pd.to_datetime(df['Date']).dt.date
